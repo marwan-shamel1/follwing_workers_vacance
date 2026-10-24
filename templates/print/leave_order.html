@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أمر إجازة رسمية معتمد - {{ req.applicant_name }} (#{{ req.id }})</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #e2e8f0;
+            direction: rtl;
+            text-align: right;
+            color: #0f172a;
+            padding: 2rem 1rem;
+        }
+
+        .print-actions {
+            max-width: 800px;
+            margin: 0 auto 1.5rem auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-print {
+            background: #1a382b;
+            color: #ffffff;
+            border: 2px solid #c5a059;
+            padding: 0.65rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 800;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .btn-print:hover {
+            background: #0c1a14;
+        }
+
+        .order-sheet {
+            background: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem;
+            border: 3px double #1a382b;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            color: rgba(26, 56, 43, 0.04);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #1a382b;
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-col {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            font-weight: 700;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .eagle-icon {
+            font-size: 2.5rem;
+            color: #c5a059;
+            margin-bottom: 0.35rem;
+        }
+
+        .order-title {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .order-title h2 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1a382b;
+            display: inline-block;
+            border-bottom: 2px solid #c5a059;
+            padding-bottom: 0.25rem;
+        }
+
+        .order-title .order-num {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .details-table th, .details-table td {
+            border: 1px solid #cbd5e1;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.9rem;
+        }
+
+        .details-table th {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 800;
+            width: 25%;
+        }
+
+        .details-table td {
+            font-weight: 600;
+        }
+
+        .tally-summary-box {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sign-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+        }
+
+        .sign-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #1a382b;
+            margin-bottom: 0.5rem;
+        }
+
+        .sign-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #334155;
+            margin-top: auto;
+        }
+
+        .stamp-box {
+            border: 2px dashed #94a3b8;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 800;
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            .print-actions {
+                display: none;
+            }
+            .order-sheet {
+                box-shadow: none;
+                border: 2px solid #000;
+                padding: 2rem;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="print-actions">
+        <a href="javascript:window.history.back();" style="color: #475569; font-weight: 700; text-decoration: none;">
+            <i class="fa-solid fa-arrow-right"></i> رجوع
+        </a>
+        <button onclick="window.print();" class="btn-print">
+            <i class="fa-solid fa-print"></i> طباعة أمر الإجازة (A4 / PDF)
+        </button>
+    </div>
+
+    <div class="order-sheet">
+        <div class="watermark">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <!-- Official Header -->
+        <div class="sheet-header">
+            <div class="header-col">
+                <div>جمهورية مصر العربية</div>
+                <div>وزارة الدفاع - القوات المسلحة</div>
+                <div>قيادة المنطقة العسكرية</div>
+                <div>إدارة شؤون العاملين المدنيين</div>
+            </div>
+
+            <div class="header-center">
+                <div class="eagle-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div style="font-weight: 800; font-size: 0.85rem; color: #1a382b;">نظام الإجازات المعتمد</div>
+            </div>
+
+            <div class="header-col" style="text-align: left;">
+                <div>سنة الإجازات: <strong>{{ req.leave_year }}</strong></div>
+                <div>التاريخ: <strong>{{ print_date|date:"Y/m/d" }}</strong></div>
+                <div>الرقم المسلسل: <strong>#{{ req.id }}</strong></div>
+            </div>
+        </div>
+
+        <!-- Document Title -->
+        <div class="order-title">
+            <h2>أمر إجازة رسمية معتمدة</h2>
+            <div class="order-num">رقم الطلب والتصديق: MIL-LEAVE-{{ req.id }}-{{ req.leave_year }}</div>
+        </div>
+
+        <!-- Particulars Table -->
+        <table class="details-table">
+            <tr>
+                <th>اسم العامل المدني</th>
+                <td colspan="3"><strong>{{ req.applicant_name }}</strong></td>
+            </tr>
+            <tr>
+                <th>الوظيفة / الحرفة</th>
+                <td>{{ req.applicant_job }}</td>
+                <th>الورشة / القسم</th>
+                <td>{{ req.applicant_department }}</td>
+            </tr>
+            {% if req.worker %}
+            <tr>
+                <th>الرقم القومي</th>
+                <td>{{ req.worker.national_id }}</td>
+                <th>رقم السجل / الكود</th>
+                <td>{{ req.worker.employee_code|default:"-" }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th>نوع الإجازة المعتمدة</th>
+                <td><strong>{{ req.get_leave_type_display }}</strong></td>
+                <th>المدة المصرح بها</th>
+                <td>
+                    <strong>{{ req.days_count }}</strong> يوم
+                    {% if req.permission_hours %}({{ req.permission_hours }}){% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>تاريخ بدء الإجازة</th>
+                <td>{{ req.start_date|date:"Y/m/d" }}</td>
+                <th>تاريخ انتهاء الإجازة</th>
+                <td>{{ req.end_date|date:"Y/m/d" }}</td>
+            </tr>
+            <tr>
+                <th>العنوان أثناء الإجازة</th>
+                <td colspan="3">{{ req.address_during_leave|default:"محل الإقامة المثبت بالملف" }}</td>
+            </tr>
+            <tr>
+                <th>القائم بالعمل بدلاً منه</th>
+                <td>{{ req.substitute_worker|default:"المعين بنوبتجية الورشة" }}</td>
+                <th>هاتف الاتصال</th>
+                <td>{{ req.applicant_phone|default:"-" }}</td>
+            </tr>
+            {% if req.commander_notes %}
+            <tr>
+                <th>أوامر وتوجيهات القائد</th>
+                <td colspan="3" style="color: #1a382b; font-weight: 700;">{{ req.commander_notes }}</td>
+            </tr>
+            {% endif %}
+        </table>
+
+        <!-- Leave Tally Summary -->
+        {% if summary %}
+        <div class="tally-summary-box">
+            <strong>موقف رصيد العامل المدني ({{ req.leave_year }}):</strong>
+            الاعتيادي المأخوذ: {{ summary.regular.taken }} يوم (المتبقي: {{ summary.regular.remaining }} يوم) | 
+            العارضة المأخوذة: {{ summary.casual.taken }} يوم (المتبقي: {{ summary.casual.remaining }} يوم) | 
+            الأذونات: {{ summary.permission.taken }} / 2 |
+            المرضي: {{ summary.sick.taken }} يوم |
+            المستشفى: {{ summary.hospital.taken }} يوم.
+        </div>
+        {% endif %}
+
+        <!-- Signatures & Endorsement Box -->
+        <div class="signatures-grid">
+            <!-- 1. Section Head -->
+            <div class="sign-box">
+                <div class="sign-title">رئيس القسم / الورشة المختص</div>
+                <div style="font-size: 0.8rem; color: #64748b;">تم التنسيق وتعيين البديل</div>
+                <div class="sign-name">....................................</div>
+            </div>
+
+            <!-- 2. HR Manager -->
+            <div class="sign-box">
+                <div class="sign-title">مدير إدارة شؤون العاملين المدنيين</div>
+                <div style="font-size: 0.8rem; color: #166534; font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> تم مراجعة الرصيد والتصديق
+                </div>
+                <div class="sign-name">{{ req.hr_endorsed_by|default:"مدير شئون العاملين" }}</div>
+            </div>
+
+            <!-- 3. Commander Approval -->
+            <div class="sign-box">
+                <div class="sign-title">قائد الوحدة / مدير المنطقة</div>
+                <div style="font-size: 0.8rem; color: #166534; font-weight: 800;">
+                    <i class="fa-solid fa-check-double"></i> صدق واعتمد نهائياً
+                </div>
+                <div class="sign-name">{{ req.commander_decided_by }}</div>
+            </div>
+        </div>
+
+        <!-- Official Seal placeholder -->
+        <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #cbd5e1; padding-top: 1rem;">
+            <div style="font-size: 0.75rem; color: #64748b;">
+                * يُسلّم هذا الأمر للعامل المدني ونسخة تحفظ بملف خدمته بإدارة شؤون العاملين المدنيين.
+            </div>
+            <div class="stamp-box">
+                خاتم شعار الجمهورية / خاتم الوحدة
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

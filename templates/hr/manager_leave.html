@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}طلب إجازة مدير شؤون العاملين{% endblock %}
+
+{% block content %}
+<div style="max-width: 950px; margin: 1.5rem auto;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                <i class="fa-solid fa-file-shield" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                استمارة إجازة مدير شئون العاملين
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                الاسم والوظيفة ثابتان تلقائياً بحساب مدير شؤون العاملين وتحال مباشرة للتصديق والاعتماد من سيادة العميد
+            </p>
+        </div>
+        <div class="leave-year-badge">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>سنة الإجازات: <strong>{{ current_leave_year }}</strong></span>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; align-items: start;">
+        
+        <!-- Leave Form for Manager -->
+        <div class="mil-card">
+            <div class="mil-card-header military-theme">
+                <div class="mil-card-title">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    تقديم طلب إجازة خاص بمدير الإدارة
+                </div>
+            </div>
+
+            <div class="mil-card-body">
+                <form method="POST" action="{% url 'hr_manager_leave' %}">
+                    {% csrf_token %}
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label">الاسم (ثابت بحكم المنصب)</label>
+                            <input type="text" class="form-control" readonly value="{{ manager_profile.full_name }}" style="background: #f1f5f9; font-weight: 800; color: var(--mil-green);">
+                            <small class="text-muted" style="font-size: 0.75rem;">لتغيير الاسم يمكنك تعديله من صفحة إعدادات الحساب</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">الوظيفة (ثابت بحكم المنصب)</label>
+                            <input type="text" class="form-control" readonly value="{{ manager_profile.job_title }}" style="background: #f1f5f9; font-weight: 800;">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">الجهة / الفرع</label>
+                            <input type="text" class="form-control" readonly value="{{ manager_profile.department }}" style="background: #f1f5f9;">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">
+                                <i class="fa-solid fa-tags" style="color: var(--mil-gold); margin-left: 0.3rem;"></i>
+                                نوع الإجازة المطلوبة <span class="required">*</span>
+                            </label>
+                            <select name="leave_type" id="mgr_leave_type" class="form-select" required>
+                                <option value="regular">اعتيادي (متاح 30 يوماً بالسنة)</option>
+                                <option value="casual">عارضة (متاح 7 أيام بالسنة)</option>
+                                <option value="permission">إذن (متاح إذنان بالسنة)</option>
+                                <option value="hospital">مستشفى</option>
+                                <option value="sick">مرضي</option>
+                                <option value="mission">مأمورية رسمية</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">من تاريخ <span class="required">*</span></label>
+                            <input type="date" name="start_date" id="mgr_start_date" class="form-control" required value="{{ today_date|date:'Y-m-d' }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">إلى تاريخ <span class="required">*</span></label>
+                            <input type="date" name="end_date" id="mgr_end_date" class="form-control" required value="{{ today_date|date:'Y-m-d' }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">المدة المطلوبة (بالأيام) <span class="required">*</span></label>
+                            <input type="number" name="days_count" id="mgr_days_count" class="form-control" min="1" value="1" required>
+                        </div>
+
+                        <div class="form-group" id="group_mgr_permission_hours" style="display: none;">
+                            <label class="form-label">ساعات الإذن</label>
+                            <input type="text" name="permission_hours" id="mgr_permission_hours" class="form-control" placeholder="مثال: ساعتان (من 11 ص إلى 1 م)">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">القائم بالعمل أثناء الإجازة</label>
+                            <input type="text" name="substitute_worker" class="form-control" placeholder="اسم الضابط / الموظف البديل">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">العنوان والتواجد أثناء الإجازة</label>
+                            <input type="text" name="address_during_leave" class="form-control" placeholder="محل الإقامة والتواجد">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">سبب الإجازة</label>
+                            <textarea name="reason" class="form-control" rows="2" placeholder="اكتب سبب طلب الإجازة..."></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.85rem; font-size: 1.05rem; margin-top: 1rem;">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        إرسال الطلب مباشرة لسيادة العميد أ ح / عبدالحميد محمد سلامة
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Manager's Previous Leave Requests -->
+        <div class="mil-card">
+            <div class="mil-card-header">
+                <div class="mil-card-title">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    سجل إجازات مدير شؤون العاملين
+                </div>
+            </div>
+
+            <div class="mil-card-body" style="padding: 0;">
+                <div class="table-responsive">
+                    <table class="mil-table">
+                        <thead>
+                            <tr>
+                                <th>نوع الإجازة</th>
+                                <th>المدة</th>
+                                <th>من - إلى</th>
+                                <th>قرار السيد العميد</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if manager_requests %}
+                                {% for r in manager_requests %}
+                                <tr>
+                                    <td><strong>{{ r.get_leave_type_display }}</strong></td>
+                                    <td>{{ r.days_count }} يوم</td>
+                                    <td>من {{ r.start_date|date:"Y-m-d" }} إلى {{ r.end_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        {% if r.commander_status == 'approved' %}
+                                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> مصدق</span>
+                                        {% elif r.commander_status == 'rejected' %}
+                                        <span class="badge badge-danger"><i class="fa-solid fa-circle-xmark"></i> مرفوض</span>
+                                        {% else %}
+                                        <span class="badge badge-warning"><i class="fa-solid fa-hourglass-half"></i> بانتظار العميد</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if r.commander_status == 'approved' %}
+                                        <a href="{% url 'print_leave_order' r.id %}" target="_blank" class="btn btn-sm btn-outline">
+                                            <i class="fa-solid fa-print"></i> أمر إجازة
+                                        </a>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                        لا توجد طلبات إجازة سابقة مسجلة لمدير شؤون العاملين.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}عرض وحصر إجازات العاملين بالكامل ومحرك البحث - السيد العميد أ ح / عبدالحميد محمد سلامة{% endblock %}
+
+{% block content %}
+<div class="commander-all-leaves-container">
+
+    <!-- Title & Breadcrumb -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                <i class="fa-solid fa-magnifying-glass-chart" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                حصر وعرض إجازات العاملين المدنيين بالكامل
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                إحصائيات إجمالية لكافة أنواع الإجازات بالوحدة مع محرك بحث فوري لاستعلام إجازات أي عامل مدني
+            </p>
+        </div>
+        <div class="leave-year-badge">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>سنة الإجازات: <strong>{{ current_leave_year }}</strong></span>
+        </div>
+    </div>
+
+    <!-- 1. TOP UNIT-WIDE TALLY BANNER: حصر شامل لكافة أنواع الإجازات وعددها بالوحدة -->
+    <div class="mil-card" style="border-top: 4px solid var(--mil-gold);">
+        <div class="mil-card-header military-theme">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-chart-pie"></i>
+                حصر إجمالي الإجازات المعتمدة على مستوى الوحدة بالكامل خلال السنة ({{ current_leave_year }})
+            </div>
+            <span class="badge badge-success">حصر عام معتمد</span>
+        </div>
+
+        <div class="mil-card-body" style="padding: 1.5rem;">
+            <div class="tally-grid">
+                <!-- Total Regular -->
+                <div class="tally-box regular">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-umbrella-beach"></i>
+                        إجمالي الاعتيادي
+                    </div>
+                    <div class="tally-metric" style="color: #2563eb;">{{ total_regular }}</div>
+                    <div class="tally-sub">يوماً معتمداً</div>
+                    <div class="tally-badge-remaining badge-reg">30 يوم لكل عامل</div>
+                </div>
+
+                <!-- Total Casual -->
+                <div class="tally-box casual">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-bolt"></i>
+                        إجمالي العارضة
+                    </div>
+                    <div class="tally-metric" style="color: #f59e0b;">{{ total_casual }}</div>
+                    <div class="tally-sub">يوماً معتمداً</div>
+                    <div class="tally-badge-remaining badge-cas">7 أيام لكل عامل</div>
+                </div>
+
+                <!-- Total Permission -->
+                <div class="tally-box permission">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-person-walking-arrow-right"></i>
+                        إجمالي الأذونات
+                    </div>
+                    <div class="tally-metric" style="color: #06b6d4;">{{ total_permission }}</div>
+                    <div class="tally-sub">إذن صادر</div>
+                    <div class="tally-badge-remaining badge-perm">إذنان لكل عامل</div>
+                </div>
+
+                <!-- Total Hospital -->
+                <div class="tally-box hospital">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-square-h"></i>
+                        إجمالي المستشفى
+                    </div>
+                    <div class="tally-metric" style="color: #dc2626;">{{ total_hospital }}</div>
+                    <div class="tally-sub">يوماً مرضياً بالمستشفى</div>
+                </div>
+
+                <!-- Total Sick -->
+                <div class="tally-box sick">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-kit-medical"></i>
+                        إجمالي المرضي
+                    </div>
+                    <div class="tally-metric" style="color: #ec4899;">{{ total_sick }}</div>
+                    <div class="tally-sub">يوماً بتقرير طبي</div>
+                </div>
+
+                <!-- Total Mission -->
+                <div class="tally-box mission">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-briefcase"></i>
+                        إجمالي المأموريات
+                    </div>
+                    <div class="tally-metric" style="color: #10b981;">{{ total_mission }}</div>
+                    <div class="tally-sub">يوماً رسمياً</div>
+                </div>
+            </div>
+
+            <!-- Total Overall Banner -->
+            <div style="background: var(--mil-green-subtle); border: 1.5px solid #a7f3d0; border-radius: var(--radius-md); padding: 0.85rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-weight: 800; color: var(--mil-green); font-size: 0.95rem;">
+                    <i class="fa-solid fa-calculator" style="margin-left: 0.4rem;"></i>
+                    إجمالي كافة أيام الإجازات المعتمدة لجميع العاملين المدنيين:
+                </div>
+                <div style="font-size: 1.25rem; font-weight: 900; color: var(--mil-dark);">
+                    {{ total_days_all }} يوماً
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SMART SEARCH ENGINE: محرك البحث الذكي الفوري -->
+    <div class="mil-card" style="box-shadow: var(--shadow-md);">
+        <div class="mil-card-body" style="padding: 1.25rem 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="search-bar-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="commanderLiveSearch" placeholder="اكتب اسم العامل المدني، أو وظيفته، أو الرقم القومي، أو القسم للبحث الفوري..." value="{{ search_query }}" autofocus>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.88rem; color: var(--text-secondary); font-weight: 700;">
+                        العاملين المطابقين: <strong id="matchingWorkersCount" style="color: var(--mil-green);">{{ matching_count }}</strong>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SEARCH RESULTS & WORKER LEAVES DOSSIERS -->
+    <div id="workerResultsContainer">
+        {% if worker_results %}
+            {% for item in worker_results %}
+            {% with w=item.worker s=item.summary leaves=item.leaves %}
+            
+            <div class="mil-card commander-worker-card" data-search="{{ w.name }} {{ w.job_title }} {{ w.national_id }} {{ w.department }} {{ w.employee_code }}" style="margin-bottom: 1.5rem;">
+                
+                <!-- Worker Header -->
+                <div class="mil-card-header" style="background: #ffffff; border-bottom: 2px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; width: 100%;">
+                        <div>
+                            <h3 style="font-size: 1.2rem; font-weight: 900; color: var(--mil-green);">
+                                <i class="fa-solid fa-user-tie" style="color: var(--mil-gold); margin-left: 0.4rem;"></i>
+                                {{ w.name }}
+                            </h3>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; margin-top: 0.25rem;">
+                                <span>الوظيفة: <strong>{{ w.job_title }}</strong></span>
+                                <span>القسم / الورشة: <strong>{{ w.department }}</strong></span>
+                                <span>الرقم القومي: <code>{{ w.national_id }}</code></span>
+                                {% if w.employee_code %}<span>كود السجل: <strong>{{ w.employee_code }}</strong></span>{% endif %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="badge badge-info" style="font-size: 0.85rem; padding: 0.35rem 0.75rem;">
+                                إجمالي إجازاته: {{ item.leaves_count }} إجازة
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mil-card-body">
+                    <!-- Worker Quota Tally Bar -->
+                    <div class="frame-tally-bar" style="margin-bottom: 1rem;">
+                        <div class="title">
+                            <i class="fa-solid fa-pie-chart" style="color: var(--mil-gold);"></i>
+                            رصيد إجازات العامل الحالي ({{ current_leave_year }}):
+                        </div>
+                        <div class="frame-tally-chips">
+                            <div class="tally-chip">
+                                <span>اعتيادي:</span>
+                                <span>مأخوذ: <strong>{{ s.regular.taken }}</strong> / 30</span>
+                                <span class="badge badge-reg">المتبقي: {{ s.regular.remaining }} يوم</span>
+                            </div>
+
+                            <div class="tally-chip">
+                                <span>عارضة:</span>
+                                <span>مأخوذ: <strong>{{ s.casual.taken }}</strong> / 7</span>
+                                <span class="badge badge-cas">المتبقي: {{ s.casual.remaining }} يوم</span>
+                            </div>
+
+                            <div class="tally-chip">
+                                <span>إذن:</span>
+                                <span>مأخوذ: <strong>{{ s.permission.taken }}</strong> / 2</span>
+                                <span class="badge badge-perm">المتبقي: {{ s.permission.remaining }}</span>
+                            </div>
+
+                            <div class="tally-chip">
+                                <span>مستشفى:</span>
+                                <strong>{{ s.hospital.taken }}</strong> يوم
+                            </div>
+
+                            <div class="tally-chip">
+                                <span>مرضي:</span>
+                                <strong>{{ s.sick.taken }}</strong> يوم
+                            </div>
+
+                            <div class="tally-chip">
+                                <span>مأمورية:</span>
+                                <strong>{{ s.mission.taken }}</strong> يوم
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leaves Table for this Worker -->
+                    <div class="table-responsive">
+                        <table class="mil-table">
+                            <thead>
+                                <tr>
+                                    <th>نوع الإجازة</th>
+                                    <th>المدة المطلوبة</th>
+                                    <th>من تاريخ</th>
+                                    <th>إلى تاريخ</th>
+                                    <th>حالة شؤون العاملين</th>
+                                    <th>قرار السيد العميد</th>
+                                    <th>السبب / ملاحظات</th>
+                                    <th>الإجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if leaves %}
+                                    {% for l in leaves %}
+                                    <tr>
+                                        <td><strong>{{ l.get_leave_type_display }}</strong></td>
+                                        <td>
+                                            <strong>{{ l.days_count }}</strong> يوم
+                                            {% if l.permission_hours %}
+                                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ l.permission_hours }}</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ l.start_date|date:"Y-m-d" }}</td>
+                                        <td>{{ l.end_date|date:"Y-m-d" }}</td>
+                                        <td>
+                                            {% if l.hr_status == 'endorsed' %}
+                                            <span class="badge badge-success"><i class="fa-solid fa-check"></i> مصدق</span>
+                                            {% elif l.hr_status == 'rejected' %}
+                                            <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> غير مصدق</span>
+                                            {% else %}
+                                            <span class="badge badge-info"><i class="fa-solid fa-clock"></i> قيد المراجعة</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if l.commander_status == 'approved' %}
+                                            <span class="badge badge-success"><i class="fa-solid fa-check-double"></i> مصدق ومعتمد</span>
+                                            {% elif l.commander_status == 'rejected' %}
+                                            <span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> مرفوض</span>
+                                            {% else %}
+                                            <span class="badge badge-warning"><i class="fa-solid fa-hourglass"></i> بانتظار قراركم</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="max-width: 250px;">
+                                            <div style="font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ l.reason }}">
+                                                {{ l.reason|default:"-" }}
+                                            </div>
+                                            {% if l.commander_notes %}
+                                            <div style="font-size: 0.75rem; color: var(--mil-green);" title="توجيهات القائد">
+                                                <strong>أمر:</strong> {{ l.commander_notes }}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if l.commander_status == 'approved' %}
+                                            <a href="{% url 'print_leave_order' l.id %}" target="_blank" class="btn btn-sm btn-outline">
+                                                <i class="fa-solid fa-print"></i> أمر إجازة
+                                            </a>
+                                            {% elif l.hr_status == 'endorsed' and l.commander_status == 'pending' %}
+                                            <a href="{% url 'commander_requests' %}#req_{{ l.id }}" class="btn btn-sm btn-primary">
+                                                <i class="fa-solid fa-pen"></i> تصديق
+                                            </a>
+                                            {% else %}
+                                            -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">
+                                            لا توجد إجازات مسجلة لهذا العامل بعد.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            {% endwith %}
+            {% endfor %}
+        {% else %}
+            <div class="mil-card">
+                <div class="mil-card-body" style="text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-user-slash" style="font-size: 3rem; margin-bottom: 0.75rem; color: var(--border-color);"></i>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary);">لم يتم العثور على أي عامل مدني مطابق لبحثك</h3>
+                    <p style="font-size: 0.85rem; margin-top: 0.25rem;">تأكد من كتابة الاسم أو الرقم القومي أو الوظيفة بصورة صحيحة</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="noSearchResults" style="display: none;" class="mil-card">
+        <div class="mil-card-body" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+            <i class="fa-solid fa-search" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: var(--border-color);"></i>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">لا توجد نتائج بحث مطابقة فورية</h3>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

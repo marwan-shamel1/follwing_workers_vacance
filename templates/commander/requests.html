@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+
+{% block title %}مراجعة وتصديق طلبات الإجازة - السيد العميد أ ح / عبدالحميد محمد سلامة{% endblock %}
+
+{% block content %}
+<div class="commander-requests-container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                <i class="fa-solid fa-stamp" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                مراجعة وتصديق طلبات الإجازة
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                الاطلاع على طلب الإجازة، تصديق مدير شؤون العاملين، وحصر رصيد إجازات العامل قبل اتخاذ قرار التصديق أو الرفض
+            </p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="?status=pending" class="btn btn-sm {% if status_filter == 'pending' %}btn-primary{% else %}btn-outline{% endif %}">
+                <i class="fa-solid fa-hourglass-half"></i> بانتظار التصديق ({{ pending_count }})
+            </a>
+            <a href="?status=approved" class="btn btn-sm {% if status_filter == 'approved' %}btn-primary{% else %}btn-outline{% endif %}">
+                <i class="fa-solid fa-circle-check"></i> المصدقة والمعتمدة
+            </a>
+            <a href="?status=rejected" class="btn btn-sm {% if status_filter == 'rejected' %}btn-primary{% else %}btn-outline{% endif %}">
+                <i class="fa-solid fa-circle-xmark"></i> المرفوضة
+            </a>
+            <a href="?status=all" class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline{% endif %}">
+                <i class="fa-solid fa-list"></i> كافة الطلبات
+            </a>
+        </div>
+    </div>
+
+    <!-- Requests Dossier Feed -->
+    {% if requests_with_summary %}
+        {% for item in requests_with_summary %}
+        {% with req=item.request sum=item.summary %}
+        
+        <div class="request-frame" id="req_{{ req.id }}" style="border-width: 2px; {% if req.commander_status == 'approved' %}border-color: #10b981;{% elif req.commander_status == 'rejected' %}border-color: #ef4444;{% else %}border-color: var(--mil-gold);{% endif %}">
+            
+            <!-- Frame Header -->
+            <div class="request-frame-header">
+                <div class="applicant-info">
+                    <h3>
+                        <i class="fa-solid fa-id-card" style="color: var(--mil-gold); margin-left: 0.35rem;"></i>
+                        {{ req.applicant_name }}
+                    </h3>
+                    <div class="applicant-meta">
+                        <span><i class="fa-solid fa-briefcase"></i> الوظيفة: <strong>{{ req.applicant_job }}</strong></span>
+                        <span><i class="fa-solid fa-building"></i> الورشة / القسم: <strong>{{ req.applicant_department }}</strong></span>
+                        <span><i class="fa-solid fa-phone"></i> الهاتف: <strong>{{ req.applicant_phone|default:"غير مسجل" }}</strong></span>
+                        <span><i class="fa-solid fa-calendar-plus"></i> تاريخ التقديم: <strong>{{ req.created_at|date:"Y-m-d H:i" }}</strong></span>
+                    </div>
+                </div>
+
+                <div>
+                    {% if req.commander_status == 'approved' %}
+                    <span class="badge badge-success" style="font-size: 0.9rem; padding: 0.45rem 0.9rem;">
+                        <i class="fa-solid fa-check-double"></i> مصدق ومعتمد نهائياً من السيد العميد
+                    </span>
+                    {% elif req.commander_status == 'rejected' %}
+                    <span class="badge badge-danger" style="font-size: 0.9rem; padding: 0.45rem 0.9rem;">
+                        <i class="fa-solid fa-ban"></i> مرفوض من السيد العميد
+                    </span>
+                    {% else %}
+                    <span class="badge badge-warning" style="font-size: 0.9rem; padding: 0.45rem 0.9rem;">
+                        <i class="fa-solid fa-clock"></i> بانتظار تصديق سيادتكم
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Leave Details -->
+            <div class="request-details-grid">
+                <div class="detail-item">
+                    <div class="label">نوع الإجازة</div>
+                    <div class="value" style="color: var(--mil-green); font-size: 1.05rem;">
+                        <i class="fa-solid fa-tag"></i> {{ req.get_leave_type_display }}
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="label">المدة المطلوبة</div>
+                    <div class="value">
+                        <strong>{{ req.days_count }}</strong> يوم
+                        {% if req.permission_hours %}
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">({{ req.permission_hours }})</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="label">الفترة المقررة</div>
+                    <div class="value">
+                        من {{ req.start_date|date:"Y-m-d" }} إلى {{ req.end_date|date:"Y-m-d" }}
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="label">القائم بالعمل بدلاً منه</div>
+                    <div class="value">{{ req.substitute_worker|default:"لم يحدد" }}</div>
+                </div>
+
+                {% if req.address_during_leave %}
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <div class="label">العنوان والتواجد أثناء الإجازة</div>
+                    <div class="value">{{ req.address_during_leave }}</div>
+                </div>
+                {% endif %}
+
+                {% if req.reason %}
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <div class="label">سبب الإجازة والغرض منها</div>
+                    <div class="value">{{ req.reason }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- HR MANAGER ENDORSEMENT BLOCK: بيان وتصديق شؤون العاملين -->
+            <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem;">
+                    <div style="font-weight: 800; color: #166534; font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+                        تصديق شؤون العاملين: 
+                        <span>{{ req.get_hr_status_display }}</span>
+                    </div>
+                    {% if req.hr_endorsed_at %}
+                    <div style="font-size: 0.8rem; color: #166534;">
+                        تاريخ التصديق: <strong>{{ req.hr_endorsed_at|date:"Y-m-d H:i" }}</strong>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div style="font-size: 0.88rem; color: #1e293b;">
+                    المصدق: <strong>{{ req.hr_endorsed_by|default:"مدير شئون العاملين" }}</strong>
+                </div>
+
+                {% if req.hr_notes %}
+                <div style="margin-top: 0.35rem; font-size: 0.85rem; color: #334155; background: #ffffff; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid #bbf7d0;">
+                    <strong>ملاحظات شؤون العاملين:</strong> {{ req.hr_notes }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- FULL WORKER TALLY FRAME: حصر عدد وأرصدة إجازات العامل المدني بكل أنواعها -->
+            <div class="frame-tally-bar">
+                <div class="title">
+                    <i class="fa-solid fa-chart-pie" style="color: var(--mil-gold);"></i>
+                    حصر رصيد إجازات العامل المدني ({{ req.leave_year }}):
+                </div>
+
+                {% if sum %}
+                <div class="frame-tally-chips">
+                    <div class="tally-chip">
+                        <span>اعتيادي:</span>
+                        <span>مأخوذ: <strong>{{ sum.regular.taken }}</strong> / 30</span>
+                        <span class="badge badge-reg">المتبقي: {{ sum.regular.remaining }} يوم</span>
+                    </div>
+
+                    <div class="tally-chip">
+                        <span>عارضة:</span>
+                        <span>مأخوذ: <strong>{{ sum.casual.taken }}</strong> / 7</span>
+                        <span class="badge badge-cas">المتبقي: {{ sum.casual.remaining }} يوم</span>
+                    </div>
+
+                    <div class="tally-chip">
+                        <span>إذن:</span>
+                        <span>مأخوذ: <strong>{{ sum.permission.taken }}</strong> / 2</span>
+                        <span class="badge badge-perm">المتبقي: {{ sum.permission.remaining }}</span>
+                    </div>
+
+                    <div class="tally-chip">
+                        <span>مستشفى:</span>
+                        <strong>{{ sum.hospital.taken }}</strong> يوم
+                    </div>
+
+                    <div class="tally-chip">
+                        <span>مرضي:</span>
+                        <strong>{{ sum.sick.taken }}</strong> يوم
+                    </div>
+
+                    <div class="tally-chip">
+                        <span>مأمورية:</span>
+                        <strong>{{ sum.mission.taken }}</strong> يوم
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- DECISION SECTION -->
+            <div style="border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+                {% if req.commander_status == 'pending' %}
+                    <!-- Action Form for Pending Decision -->
+                    <form method="POST" action="{% url 'commander_decide' req.id %}">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 0.75rem;">
+                            <label class="form-label" style="font-size: 0.85rem; font-weight: 700;">
+                                <i class="fa-solid fa-signature" style="color: var(--mil-gold); margin-left: 0.3rem;"></i>
+                                توجيهات أو ملاحظات السيد العميد (تظهر في أمر الإجازة وسجل العامل):
+                            </label>
+                            <input type="text" name="commander_notes" class="form-control" placeholder="اكتب ملاحظات أو تعليمات التصديق...">
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                            <button type="submit" name="decision" value="reject" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من رفض طلب هذه الإجازة؟');">
+                                <i class="fa-solid fa-xmark"></i> رفض الطلب
+                            </button>
+                            <button type="submit" name="decision" value="approve" class="btn btn-success" style="padding: 0.7rem 1.75rem; font-size: 1rem;">
+                                <i class="fa-solid fa-stamp"></i> تصديق الطلب واعتماده
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <!-- Already Decided Info -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.95rem; color: var(--mil-dark);">
+                                قرار السيد العميد: 
+                                {% if req.commander_status == 'approved' %}
+                                <span style="color: #10b981;">تم التصديق والاعتماد</span>
+                                {% else %}
+                                <span style="color: #ef4444;">مرفوض</span>
+                                {% endif %}
+                                <small class="text-muted" style="font-weight: normal; margin-right: 0.5rem;">بتاريخ {{ req.commander_decided_at|date:"Y-m-d H:i" }}</small>
+                            </div>
+                            {% if req.commander_notes %}
+                            <div style="font-size: 0.85rem; color: #475569; margin-top: 0.25rem;">
+                                <strong>توجيهات القائد:</strong> {{ req.commander_notes }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            {% if req.commander_status == 'approved' %}
+                            <a href="{% url 'print_leave_order' req.id %}" target="_blank" class="btn btn-gold">
+                                <i class="fa-solid fa-print"></i> طباعة أمر إجازة عسكرية معتمد
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endwith %}
+        {% endfor %}
+
+    {% else %}
+        <div class="mil-card">
+            <div class="mil-card-body" style="text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
+                <i class="fa-solid fa-folder-open" style="font-size: 3.5rem; color: var(--border-color); margin-bottom: 1rem;"></i>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">لا توجد طلبات إجازة مطابقة لهذا التصنيف</h3>
+                <p style="font-size: 0.88rem; margin-top: 0.25rem;">يمكنك التبديل بين التبويبات بالأعلى لعرض كافة الطلبات السابقة</p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

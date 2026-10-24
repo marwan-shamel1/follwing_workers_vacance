@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}لوحة القيادة - السيد العميد أ ح / عبدالحميد محمد سلامة{% endblock %}
+
+{% block content %}
+<div class="commander-dashboard-container">
+
+    <!-- Top Commander Welcome Card -->
+    <div class="mil-card" style="background: linear-gradient(135deg, #0c1a14 0%, #1a382b 100%); color: #ffffff; border-bottom: 3px solid var(--mil-gold);">
+        <div class="mil-card-body" style="padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 1.25rem;">
+                    {% if user_profile and user_profile.avatar %}
+                    <img src="{{ user_profile.avatar.url }}" alt="Commander Photo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--mil-gold); box-shadow: var(--shadow-gold);">
+                    {% else %}
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--mil-dark-surface); border: 3px solid var(--mil-gold); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: var(--mil-gold);">
+                        <i class="fa-solid fa-medal"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--mil-gold-light); font-weight: 700;">قيادة المنطقة العسكرية</div>
+                        <h2 style="font-size: 1.5rem; font-weight: 900; color: #ffffff; margin-top: 0.2rem;">
+                            {{ user_profile.full_name }}
+                        </h2>
+                        <div style="font-size: 0.88rem; color: #cbd5e1; margin-top: 0.25rem;">
+                            {{ user_profile.job_title }} | الصلاحية: التصديق والاعتماد النهائي لإجازات العاملين المدنيين
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <a href="{% url 'commander_requests' %}" class="btn btn-gold">
+                        <i class="fa-solid fa-stamp"></i> مراجعة طلبات الإجازة ({{ pending_count }})
+                    </a>
+                    <a href="{% url 'commander_all_leaves' %}" class="btn btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.4);">
+                        <i class="fa-solid fa-magnifying-glass"></i> محرك بحث إجازات العاملين
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="tally-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 1.5rem;">
+        <div class="tally-box" style="border-top: 4px solid var(--warning);">
+            <div class="tally-title"><i class="fa-solid fa-hourglass-half"></i> طلبات بانتظار تصديق سيادتكم</div>
+            <div class="tally-metric" style="color: var(--warning);">{{ pending_count }}</div>
+            <div class="tally-sub">تم تصديقها من مدير شؤون العاملين</div>
+        </div>
+
+        <div class="tally-box" style="border-top: 4px solid var(--success);">
+            <div class="tally-title"><i class="fa-solid fa-circle-check"></i> اعتمدتها اليوم</div>
+            <div class="tally-metric" style="color: var(--success);">{{ today_approved }}</div>
+            <div class="tally-sub">أمر إجازة صادر اليوم</div>
+        </div>
+
+        <div class="tally-box" style="border-top: 4px solid var(--mil-gold);">
+            <div class="tally-title"><i class="fa-solid fa-users"></i> قوة العاملين المدنيين</div>
+            <div class="tally-metric">{{ total_workers }}</div>
+            <div class="tally-sub">عامل مدني على رأس العمل</div>
+        </div>
+
+        <div class="tally-box" style="border-top: 4px solid #3b82f6;">
+            <div class="tally-title"><i class="fa-solid fa-calendar-days"></i> دورة الإجازات الرسمية</div>
+            <div class="tally-metric" style="font-size: 1.3rem; padding-top: 0.4rem;">{{ current_leave_year }}</div>
+            <div class="tally-sub">من 1 يوليو حتى 30 يونيو</div>
+        </div>
+    </div>
+
+    <!-- Quick Pending Approvals Feed -->
+    <div class="mil-card">
+        <div class="mil-card-header">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-stamp"></i>
+                طلبات الإجازات العاجلة المحالة للتصديق ({{ pending_count }})
+            </div>
+            <a href="{% url 'commander_requests' %}" class="btn btn-sm btn-outline">عرض كافة الطلبات</a>
+        </div>
+
+        <div class="mil-card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="mil-table">
+                    <thead>
+                        <tr>
+                            <th>مقدم الطلب</th>
+                            <th>الوظيفة والورشة</th>
+                            <th>نوع الإجازة</th>
+                            <th>المدة</th>
+                            <th>الفترة</th>
+                            <th>تصديق شؤون العاملين</th>
+                            <th>الإجراء السريع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if pending_requests %}
+                            {% for req in pending_requests %}
+                            <tr>
+                                <td>
+                                    <strong>{{ req.applicant_name }}</strong>
+                                    {% if req.is_manager_request %}
+                                    <span class="badge badge-dark">مدير شؤون العاملين</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ req.applicant_job }}</div>
+                                    <small class="text-muted">{{ req.applicant_department }}</small>
+                                </td>
+                                <td><span class="badge badge-info">{{ req.get_leave_type_display }}</span></td>
+                                <td>
+                                    <strong>{{ req.days_count }}</strong> يوم
+                                    {% if req.permission_hours %}
+                                    <small class="text-muted">({{ req.permission_hours }})</small>
+                                    {% endif %}
+                                </td>
+                                <td>من {{ req.start_date|date:"Y-m-d" }} إلى {{ req.end_date|date:"Y-m-d" }}</td>
+                                <td>
+                                    <span class="badge badge-success">
+                                        <i class="fa-solid fa-check"></i> مصدق ({{ req.hr_endorsed_by }})
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'commander_requests' %}#req_{{ req.id }}" class="btn btn-sm btn-primary">
+                                        <i class="fa-solid fa-pen-fancy"></i> اتخاذ القرار
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: #10b981; margin-bottom: 0.5rem;"></i>
+                                    <div>لا توجد طلبات إجازة معلقة بانتظار تصديق سيادتكم حالياً.</div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

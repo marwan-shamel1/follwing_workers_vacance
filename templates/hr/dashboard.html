@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}مستجدات طلبات الإجازة - مدير شئون العاملين{% endblock %}
+
+{% block content %}
+<div class="hr-dashboard-container">
+
+    <!-- Header & KPIs -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                <i class="fa-solid fa-inbox" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                مستجدات طلبات الإجازة الواردة
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                مراجعة طلبات العاملين المدنيين وتصديقها للإحالة إلى سيادة العميد أ ح / عبدالحميد محمد سلامة
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{% url 'hr_today_endorsed' %}" class="btn btn-outline">
+                <i class="fa-solid fa-calendar-day"></i> المصدقة اليوم ({{ today_endorsed_count }})
+            </a>
+            <a href="{% url 'hr_manage_workers' %}" class="btn btn-primary">
+                <i class="fa-solid fa-user-plus"></i> إضافة عامل مدني
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Metric Cards -->
+    <div class="tally-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 1.5rem;">
+        <div class="tally-box" style="border-top: 4px solid var(--warning);">
+            <div class="tally-title"><i class="fa-solid fa-clock"></i> بانتظار تصديقك الآن</div>
+            <div class="tally-metric" style="color: var(--warning);">{{ pending_count }}</div>
+            <div class="tally-sub">طلب إجازة جديد</div>
+        </div>
+
+        <div class="tally-box" style="border-top: 4px solid var(--success);">
+            <div class="tally-title"><i class="fa-solid fa-calendar-check"></i> صدقت عليها اليوم</div>
+            <div class="tally-metric" style="color: var(--success);">{{ today_endorsed_count }}</div>
+            <div class="tally-sub">طلبات محالة للعميد اليوم</div>
+        </div>
+
+        <div class="tally-box" style="border-top: 4px solid var(--mil-gold);">
+            <div class="tally-title"><i class="fa-solid fa-users"></i> إجمالي العاملين المدنيين</div>
+            <div class="tally-metric">{{ total_workers_count }}</div>
+            <div class="tally-sub">عامل مسجل بالوحدة</div>
+        </div>
+
+        <div class="tally-box" style="border-top: 4px solid #2563eb;">
+            <div class="tally-title"><i class="fa-solid fa-stamp"></i> معتمدة نهائياً من العميد</div>
+            <div class="tally-metric" style="color: #2563eb;">{{ approved_commander_count }}</div>
+            <div class="tally-sub">أمر إجازة نافذ</div>
+        </div>
+    </div>
+
+    <!-- Incoming Requests Feed -->
+    <div class="mil-card">
+        <div class="mil-card-header military-theme">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-list-check"></i>
+                قائمة طلبات الإجازات الجارية بانتظار قرار مدير شؤون العاملين ({{ pending_count }})
+            </div>
+            <span class="badge badge-warning">تتطلب اتخاذ قرار</span>
+        </div>
+
+        <div class="mil-card-body">
+            {% if requests_with_summary %}
+                {% for item in requests_with_summary %}
+                {% with req=item.request sum=item.summary %}
+                
+                <!-- Individual Request Frame -->
+                <div class="request-frame">
+                    <div class="request-frame-header">
+                        <div class="applicant-info">
+                            <h3>
+                                <i class="fa-solid fa-user-gear" style="color: var(--mil-gold); margin-left: 0.35rem;"></i>
+                                {{ req.applicant_name }}
+                            </h3>
+                            <div class="applicant-meta">
+                                <span><i class="fa-solid fa-briefcase"></i> الوظيفة: <strong>{{ req.applicant_job }}</strong></span>
+                                <span><i class="fa-solid fa-building"></i> الورشة / القسم: <strong>{{ req.applicant_department }}</strong></span>
+                                <span><i class="fa-solid fa-phone"></i> الهاتف: <strong>{{ req.applicant_phone|default:"غير مسجل" }}</strong></span>
+                                <span><i class="fa-solid fa-calendar-plus"></i> تاريخ التقديم: <strong>{{ req.created_at|date:"Y-m-d H:i" }}</strong></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="badge badge-{{ req.composite_status.badge_class }}" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+                                <i class="fa {{ req.composite_status.icon }}"></i> {{ req.composite_status.label }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Leave Details Grid -->
+                    <div class="request-details-grid">
+                        <div class="detail-item">
+                            <div class="label">نوع الإجازة المطلوبة</div>
+                            <div class="value" style="color: var(--mil-green);">
+                                <i class="fa-solid fa-tag"></i> {{ req.get_leave_type_display }}
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="label">المدة المطلوبة</div>
+                            <div class="value">
+                                <strong>{{ req.days_count }}</strong> يوم
+                                {% if req.permission_hours %}
+                                <span style="font-size: 0.82rem; color: var(--text-secondary);">({{ req.permission_hours }})</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="label">الفترة من - إلى</div>
+                            <div class="value">
+                                من {{ req.start_date|date:"Y-m-d" }} إلى {{ req.end_date|date:"Y-m-d" }}
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="label">القائم بالعمل بدلاً منه</div>
+                            <div class="value">{{ req.substitute_worker|default:"لم يحدد" }}</div>
+                        </div>
+
+                        {% if req.address_during_leave %}
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <div class="label">محل الإقامة والتواجد أثناء الإجازة</div>
+                            <div class="value" style="font-weight: 600;">{{ req.address_during_leave }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if req.reason %}
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <div class="label">سبب الإجازة والغرض منها</div>
+                            <div class="value" style="font-weight: 600;">{{ req.reason }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- DIRECT TALLY FRAME: حصر عدد وأرصدة إجازات العامل المدني بكل أنواعها -->
+                    <div class="frame-tally-bar">
+                        <div class="title">
+                            <i class="fa-solid fa-chart-simple" style="color: var(--mil-gold);"></i>
+                            حصر إجازات العامل المدني ورصيده المتاح خلال السنة التأمينية الحالية ({{ req.leave_year }}):
+                        </div>
+                        
+                        {% if sum %}
+                        <div class="frame-tally-chips">
+                            <!-- Regular -->
+                            <div class="tally-chip">
+                                <span>اعتيادي:</span>
+                                <span>مأخوذ: <strong>{{ sum.regular.taken }}</strong> / 30</span>
+                                <span class="badge badge-reg">المتبقي: {{ sum.regular.remaining }} يوم</span>
+                            </div>
+
+                            <!-- Casual -->
+                            <div class="tally-chip">
+                                <span>عارضة:</span>
+                                <span>مأخوذ: <strong>{{ sum.casual.taken }}</strong> / 7</span>
+                                <span class="badge badge-cas">المتبقي: {{ sum.casual.remaining }} يوم</span>
+                            </div>
+
+                            <!-- Permission -->
+                            <div class="tally-chip">
+                                <span>إذن:</span>
+                                <span>مأخوذ: <strong>{{ sum.permission.taken }}</strong> / 2</span>
+                                <span class="badge badge-perm">المتبقي: {{ sum.permission.remaining }}</span>
+                            </div>
+
+                            <!-- Hospital -->
+                            <div class="tally-chip">
+                                <span>مستشفى:</span>
+                                <strong>{{ sum.hospital.taken }}</strong> يوم
+                            </div>
+
+                            <!-- Sick -->
+                            <div class="tally-chip">
+                                <span>مرضي:</span>
+                                <strong>{{ sum.sick.taken }}</strong> يوم
+                            </div>
+
+                            <!-- Mission -->
+                            <div class="tally-chip">
+                                <span>مأمورية:</span>
+                                <strong>{{ sum.mission.taken }}</strong> يوم
+                            </div>
+                        </div>
+                        {% else %}
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">
+                            طلب إجازة خاص بمدير شئون العاملين (مباشر للإحالة إلى السيد العميد).
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions Form: يصدق / لا يصدق -->
+                    <div style="background: #ffffff; border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+                        <div style="flex: 1; min-width: 280px;">
+                            <label class="form-label" style="font-size: 0.82rem; margin-bottom: 0.25rem;">ملاحظات مدير شؤون العاملين (اختياري):</label>
+                            <input type="text" id="hr_notes_{{ req.id }}" class="form-control" placeholder="اكتب ملاحظاتك على الطلب قبل التصديق أو الرفض...">
+                        </div>
+
+                        <div style="display: flex; gap: 0.75rem;">
+                            <!-- Approve / Endorse Form -->
+                            <form method="POST" action="{% url 'hr_endorse_request' req.id %}" onsubmit="this.querySelector('input[name=hr_notes]').value = document.getElementById('hr_notes_{{ req.id }}').value;">
+                                {% csrf_token %}
+                                <input type="hidden" name="hr_notes" value="">
+                                <button type="submit" class="btn btn-success" style="padding: 0.65rem 1.25rem;">
+                                    <i class="fa-solid fa-check"></i>
+                                    يصدق (إرسال للعميد)
+                                </button>
+                            </form>
+
+                            <!-- Reject Form -->
+                            <form method="POST" action="{% url 'hr_reject_request' req.id %}" onsubmit="this.querySelector('input[name=hr_notes]').value = document.getElementById('hr_notes_{{ req.id }}').value;">
+                                {% csrf_token %}
+                                <input type="hidden" name="hr_notes" value="">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.65rem 1.25rem;" onclick="return confirm('هل أنت متأكد من عدم التصديق (رفض) على هذا الطلب؟');">
+                                    <i class="fa-solid fa-xmark"></i>
+                                    لا يصدق
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+                {% endwith %}
+                {% endfor %}
+
+            {% else %}
+                <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                    <div style="font-size: 3rem; color: #10b981; margin-bottom: 0.75rem;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary);">لا توجد طلبات إجازات معلقة حالياً</h3>
+                    <p style="font-size: 0.88rem; margin-top: 0.25rem;">
+                        تم اتخاذ القرار في كافة طلبات إجازات العاملين المدنيين الواردة للمنظومة
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

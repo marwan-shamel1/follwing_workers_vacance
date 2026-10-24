@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}الطلبات المصدقة اليوم - شؤون العاملين{% endblock %}
+
+{% block content %}
+<div class="today-endorsed-container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                <i class="fa-solid fa-calendar-day" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                الطلبات المصدقة في اليوم الحالي للطلب
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                تاريخ اليوم: <strong>{{ today|date:"Y-m-d" }}</strong> | تعرض الطلبات التي تم تصديقها اليوم ومتابعة حالة اعتمادها من سيادة العميد
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'hr_all_approved' %}" class="btn btn-outline">
+                <i class="fa-solid fa-box-archive"></i> الانتقال إلى أرشيف كل الطلبات المصدقة
+            </a>
+        </div>
+    </div>
+
+    <div class="mil-card">
+        <div class="mil-card-header">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-list-check"></i>
+                إجمالي الطلبات المصدقة اليوم من شؤون العاملين ({{ count }})
+            </div>
+            <span class="badge badge-success">اليوم الحالي</span>
+        </div>
+
+        <div class="mil-card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="mil-table">
+                    <thead>
+                        <tr>
+                            <th>مقدم الطلب</th>
+                            <th>الوظيفة / القسم</th>
+                            <th>نوع الإجازة</th>
+                            <th>المدة</th>
+                            <th>الفترة</th>
+                            <th>وقت تصديق شؤون العاملين</th>
+                            <th>موافقة السيد العميد</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if requests %}
+                            {% for req in requests %}
+                            <tr>
+                                <td>
+                                    <strong>{{ req.applicant_name }}</strong>
+                                    {% if req.is_manager_request %}
+                                    <span class="badge badge-dark">مدير شؤون العاملين</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ req.applicant_job }}</div>
+                                    <small class="text-muted">{{ req.applicant_department }}</small>
+                                </td>
+                                <td><span class="badge badge-info">{{ req.get_leave_type_display }}</span></td>
+                                <td>
+                                    <strong>{{ req.days_count }}</strong> يوم
+                                    {% if req.permission_hours %}
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ req.permission_hours }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>من {{ req.start_date|date:"Y-m-d" }} إلى {{ req.end_date|date:"Y-m-d" }}</td>
+                                <td>
+                                    <div>{{ req.hr_endorsed_at|date:"H:i" }}</div>
+                                    <small class="text-muted">{{ req.hr_endorsed_at|date:"Y-m-d" }}</small>
+                                </td>
+                                <td>
+                                    {% if req.commander_status == 'approved' %}
+                                    <span class="badge badge-success" title="{{ req.commander_notes }}">
+                                        <i class="fa-solid fa-circle-check"></i> تم التصديق والاعتماد
+                                    </span>
+                                    {% elif req.commander_status == 'rejected' %}
+                                    <span class="badge badge-danger" title="{{ req.commander_notes }}">
+                                        <i class="fa-solid fa-circle-xmark"></i> مرفوض من العميد
+                                    </span>
+                                    {% else %}
+                                    <span class="badge badge-warning">
+                                        <i class="fa-solid fa-hourglass-half"></i> قيد انتظار قرار العميد
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if req.commander_status == 'approved' %}
+                                    <a href="{% url 'print_leave_order' req.id %}" target="_blank" class="btn btn-sm btn-outline">
+                                        <i class="fa-solid fa-print"></i> أمر الإجازة
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted" style="font-size: 0.8rem;">بانتظار الاعتماد</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-calendar-xmark" style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--border-color);"></i>
+                                    <div>لم يتم تصديق أي طلبات إجازة جديدة في اليوم الحالي حتى الآن.</div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

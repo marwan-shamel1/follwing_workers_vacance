@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}إعدادات حساب مدير شؤون العاملين{% endblock %}
+
+{% block content %}
+<div style="max-width: 750px; margin: 1.5rem auto;">
+
+    <div class="mil-card">
+        <div class="mil-card-header military-theme">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-user-gear"></i>
+                إعدادات حساب وبيانات مدير شؤون العاملين
+            </div>
+        </div>
+
+        <div class="mil-card-body">
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                يمكنك هنا تغيير اسم مدير الإدارة، الوظيفة، اسم المستخدم، وكلمة المرور. بمجرد التغيير يصبح الاسم والوظيفة هما المعتمدان رسمياً في كافة تصديقات المنظومة واستمارة إجازتك.
+            </p>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">الاسم بالكامل (اسم مدير شؤون العاملين) <span class="required">*</span></label>
+                        {{ form.full_name }}
+                        <small class="text-muted" style="font-size: 0.75rem;">يظهر هذا الاسم في تصديقاتك على طلبات العمال واستمارة إجازتك</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الوظيفة / المسمى الوظيفي <span class="required">*</span></label>
+                        {{ form.job_title }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الفرع / الإدارة</label>
+                        {{ form.department }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">رقم الهاتف</label>
+                        {{ form.phone }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الصورة الشخصية (اختياري)</label>
+                        {{ form.avatar }}
+                    </div>
+
+                    <div class="form-group full-width" style="border-top: 1px dashed var(--border-color); padding-top: 1.25rem; margin-top: 0.5rem;">
+                        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--mil-green); margin-bottom: 0.75rem;">
+                            <i class="fa-solid fa-key" style="color: var(--mil-gold); margin-left: 0.35rem;"></i>
+                            بيانات تسجيل الدخول
+                        </h4>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">اسم المستخدم للدخول</label>
+                        {{ form.new_username }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">كلمة المرور الجديدة</label>
+                        {{ form.new_password }}
+                        <small class="text-muted" style="font-size: 0.75rem;">اتركها فارغة إذا كنت لا ترغب بتغييرها</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">تأكيد كلمة المرور</label>
+                        {{ form.confirm_password }}
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <a href="{% url 'hr_dashboard' %}" class="btn btn-outline">إلغاء</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> حفظ وتحديث البيانات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

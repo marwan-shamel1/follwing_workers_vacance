@@ -1,0 +1,889 @@
+/* ==========================================================================
+   Egyptian Military Leaves Management System - Core Stylesheet
+   Designed for High Prestige, Authoritative Military UI, RTL Arabic
+   ========================================================================== */
+
+:root {
+    --mil-dark: #0c1a14;
+    --mil-dark-surface: #13271e;
+    --mil-green: #1a382b;
+    --mil-green-light: #254d3c;
+    --mil-green-subtle: #edf5f0;
+    --mil-gold: #c5a059;
+    --mil-gold-light: #dfc282;
+    --mil-gold-dark: #9f7d37;
+    --mil-gold-subtle: #fcf9f2;
+    
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    
+    --bg-body: #f4f6f8;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #ffffff;
+    
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --info: #0ea5e9;
+    --info-bg: #f0f9ff;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+    --shadow-gold: 0 4px 14px 0 rgba(197, 160, 89, 0.25);
+    
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    direction: rtl;
+    text-align: right;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #c5a059;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9f7d37;
+}
+
+/* Links */
+a {
+    color: var(--mil-green);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+a:hover {
+    color: var(--mil-gold-dark);
+}
+
+/* Military Header */
+.military-topbar {
+    background: linear-gradient(135deg, var(--mil-dark) 0%, var(--mil-green) 100%);
+    color: #ffffff;
+    border-bottom: 3px solid var(--mil-gold);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.topbar-content {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.eagle-emblem {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--mil-gold-light), var(--mil-gold));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mil-dark);
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-gold);
+    border: 2px solid #ffffff;
+}
+
+.brand-titles h1 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.2px;
+}
+
+.brand-titles .subtitle {
+    font-size: 0.8rem;
+    color: var(--mil-gold-light);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.leave-year-badge {
+    background: rgba(197, 160, 89, 0.15);
+    border: 1px solid var(--mil-gold);
+    color: var(--mil-gold-light);
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.user-badge-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--mil-gold);
+    background: var(--mil-green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.user-meta-header .name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.user-meta-header .role-tag {
+    font-size: 0.72rem;
+    color: var(--mil-gold-light);
+}
+
+.btn-logout {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+.btn-logout:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Secondary Navigation Bar */
+.military-nav {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    gap: 0.5rem;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--mil-green);
+    background-color: var(--mil-green-subtle);
+}
+
+.nav-link.active {
+    color: var(--mil-green);
+    border-bottom-color: var(--mil-gold);
+    background-color: var(--mil-green-subtle);
+}
+
+.nav-link .badge-counter {
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 50px;
+    font-weight: 800;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+/* Main Layout */
+.main-wrapper {
+    max-width: 1440px;
+    width: 100%;
+    margin: 1.5rem auto;
+    padding: 0 1.5rem;
+    flex: 1;
+}
+
+/* Messages / Alerts */
+.messages-container {
+    margin-bottom: 1.25rem;
+}
+
+.alert {
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.75rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.alert-success {
+    background: var(--success-bg);
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.alert-warning {
+    background: var(--warning-bg);
+    border: 1px solid #fde047;
+    color: #854d0e;
+}
+
+.alert-danger, .alert-error {
+    background: var(--danger-bg);
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+.alert-info {
+    background: var(--info-bg);
+    border: 1px solid #7dd3fc;
+    color: #075985;
+}
+
+/* Cards & Frames */
+.mil-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mil-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.mil-card-header {
+    padding: 1rem 1.5rem;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.mil-card-header.military-theme {
+    background: linear-gradient(135deg, var(--mil-dark-surface), var(--mil-green));
+    color: #ffffff;
+    border-bottom: 2px solid var(--mil-gold);
+}
+
+.mil-card-header.military-theme h2,
+.mil-card-header.military-theme h3 {
+    color: #ffffff;
+}
+
+.mil-card-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-primary);
+}
+
+.mil-card-title i {
+    color: var(--mil-gold);
+}
+
+.mil-card-body {
+    padding: 1.5rem;
+}
+
+/* Leave Tally Grid */
+.tally-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tally-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.tally-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--mil-gold);
+}
+
+.tally-box.regular::before { background: #2563eb; }
+.tally-box.casual::before { background: #f59e0b; }
+.tally-box.permission::before { background: #06b6d4; }
+.tally-box.hospital::before { background: #dc2626; }
+.tally-box.sick::before { background: #ec4899; }
+.tally-box.mission::before { background: #10b981; }
+
+.tally-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.tally-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.tally-metric {
+    font-size: 1.8rem;
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.tally-sub {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.tally-badge-remaining {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-top: 0.35rem;
+}
+.badge-reg { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+.badge-cas { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.badge-perm { background: #ecfeff; color: #155e75; border: 1px solid #a5f3fc; }
+
+/* Incoming Requests Frame */
+.request-frame {
+    background: #ffffff;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.request-frame:hover {
+    border-color: var(--mil-gold);
+    box-shadow: var(--shadow-md);
+}
+
+.request-frame-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.applicant-info h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--mil-green);
+    margin-bottom: 0.25rem;
+}
+
+.applicant-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.applicant-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.request-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-light);
+}
+
+.detail-item .label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+.detail-item .value {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+/* Worker Leave Tally inside Frame */
+.frame-tally-bar {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.frame-tally-bar .title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--mil-dark);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.frame-tally-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.tally-chip {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 0.3rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.tally-chip strong {
+    color: var(--mil-green);
+}
+
+/* Form Styles */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+}
+
+.form-label .required {
+    color: #ef4444;
+}
+
+.form-control, .form-select {
+    width: 100%;
+    padding: 0.65rem 0.95rem;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background-color: #ffffff;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--mil-gold);
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.2);
+}
+
+.form-control[readonly], .form-control:disabled {
+    background-color: #f8fafc;
+    cursor: not-allowed;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.35rem;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 800;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--mil-green), var(--mil-green-light));
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(26, 56, 43, 0.25);
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--mil-dark), var(--mil-green));
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.btn-gold {
+    background: linear-gradient(135deg, var(--mil-gold-light), var(--mil-gold));
+    color: var(--mil-dark);
+    box-shadow: var(--shadow-gold);
+}
+.btn-gold:hover {
+    background: linear-gradient(135deg, var(--mil-gold), var(--mil-gold-dark));
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: #10b981;
+    color: #ffffff;
+}
+.btn-success:hover {
+    background: #059669;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: #ffffff;
+}
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-secondary);
+}
+.btn-outline:hover {
+    border-color: var(--mil-green);
+    color: var(--mil-green);
+    background: var(--mil-green-subtle);
+}
+
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+}
+
+/* Tables */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.mil-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: right;
+    background: #ffffff;
+}
+
+.mil-table th {
+    background: #f8fafc;
+    color: var(--mil-dark);
+    font-weight: 800;
+    padding: 0.85rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.mil-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.mil-table tr:hover td {
+    background-color: #fbfdfc;
+}
+
+/* Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.badge-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.badge-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.badge-danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.badge-info    { background: #f0f9ff; color: #075985; border: 1px solid #bae6fd; }
+.badge-dark    { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+
+/* Search Engine Bar */
+.search-bar-wrapper {
+    background: #ffffff;
+    border: 2px solid var(--border-color);
+    border-radius: 50px;
+    padding: 0.4rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+}
+
+.search-bar-wrapper:focus-within {
+    border-color: var(--mil-gold);
+    box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.2);
+}
+
+.search-bar-wrapper input {
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 100%;
+    background: transparent;
+}
+
+.search-bar-wrapper i {
+    color: var(--mil-gold);
+    font-size: 1.1rem;
+}
+
+/* Footer */
+.military-footer {
+    background: var(--mil-dark);
+    color: #94a3b8;
+    padding: 1.5rem 0;
+    font-size: 0.82rem;
+    border-top: 2px solid var(--mil-gold);
+    margin-top: auto;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-creds {
+    color: var(--mil-gold-light);
+    font-weight: 700;
+}
+
+/* Modals */
+.mil-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.mil-modal.show {
+    display: flex;
+}
+
+.mil-modal-dialog {
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    border: 2px solid var(--mil-gold);
+}
+
+.mil-modal-header {
+    background: linear-gradient(135deg, var(--mil-dark), var(--mil-green));
+    color: #fff;
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--mil-gold);
+}
+
+.mil-modal-header h4 {
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.mil-modal-body {
+    padding: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .topbar-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header-meta {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .tally-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

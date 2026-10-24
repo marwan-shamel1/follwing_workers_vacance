@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}منظومة متابعة إجازات العاملين المدنيين{% endblock %} - القوات المسلحة المصرية</title>
+    
+    <!-- Google Cairo Arabic Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- System Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Official Military Topbar -->
+    <header class="military-topbar">
+        <div class="topbar-content">
+            <div class="brand-section">
+                <div class="eagle-emblem">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="brand-titles">
+                    <h1>{{ military_command }}</h1>
+                    <div class="subtitle">
+                        <i class="fa-solid fa-star"></i>
+                        <span>{{ system_title }}</span>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-meta">
+                <div class="leave-year-badge" title="السنة المالية والإجازات الرسمية (تبدأ من شهر 7 لشهر 7 في السنة التالية)">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>سنة الإجازات: <strong>{{ current_leave_year }}</strong></span>
+                </div>
+
+                {% if user.is_authenticated %}
+                <div class="user-badge-header">
+                    {% if user_profile and user_profile.avatar %}
+                    <img src="{{ user_profile.avatar.url }}" alt="Avatar" class="user-avatar-sm">
+                    {% else %}
+                    <div class="user-avatar-sm">
+                        {% if user_profile.role == 'commander' %}
+                        <i class="fa-solid fa-medal"></i>
+                        {% elif user_profile.role == 'hr_manager' %}
+                        <i class="fa-solid fa-user-tie"></i>
+                        {% else %}
+                        <i class="fa-solid fa-id-card"></i>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="user-meta-header">
+                        <div class="name">{{ user_profile.full_name|default:user.username }}</div>
+                        <div class="role-tag">
+                            {% if user_profile.role == 'commander' %}
+                            <i class="fa-solid fa-award"></i> قائد الوحدة / مدير المنطقة
+                            {% elif user_profile.role == 'hr_manager' %}
+                            <i class="fa-solid fa-briefcase"></i> مدير شؤون العاملين
+                            {% else %}
+                            <i class="fa-solid fa-users"></i> بوابة العامل المدني
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{% url 'logout' %}" class="btn-logout" title="تسجيل الخروج">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>خروج</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Role-based Navigation Bar -->
+    {% if user.is_authenticated %}
+    <nav class="military-nav">
+        <div class="nav-container">
+            {% if user_profile.role == 'worker' %}
+                <a href="{% url 'worker_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'worker_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-file-pen"></i>
+                    <span>بوابة تقديم ومتابعة الإجازات</span>
+                </a>
+            {% elif user_profile.role == 'hr_manager' %}
+                <a href="{% url 'hr_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'hr_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>مستجدات طلبات الإجازة</span>
+                    {% if pending_hr_count > 0 %}
+                    <span class="badge-counter">{{ pending_hr_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'hr_today_endorsed' %}" class="nav-link {% if request.resolver_match.url_name == 'hr_today_endorsed' %}active{% endif %}">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <span>المصدقة اليوم ({{ today_date|date:"Y-m-d" }})</span>
+                </a>
+                <a href="{% url 'hr_all_approved' %}" class="nav-link {% if request.resolver_match.url_name == 'hr_all_approved' %}active{% endif %}">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>كل الطلبات المصدقة (الأرشيف)</span>
+                </a>
+                <a href="{% url 'hr_manage_workers' %}" class="nav-link {% if request.resolver_match.url_name in 'hr_manage_workers,hr_edit_worker' %}active{% endif %}">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>إدارة العاملين المدنيين</span>
+                </a>
+                <a href="{% url 'hr_manager_leave' %}" class="nav-link {% if request.resolver_match.url_name == 'hr_manager_leave' %}active{% endif %}">
+                    <i class="fa-solid fa-file-shield"></i>
+                    <span>إجازة مدير شئون العاملين</span>
+                </a>
+                <a href="{% url 'hr_profile' %}" class="nav-link {% if request.resolver_match.url_name == 'hr_profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>إعدادات الحساب</span>
+                </a>
+            {% elif user_profile.role == 'commander' %}
+                <a href="{% url 'commander_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'commander_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>لوحة القيادة</span>
+                </a>
+                <a href="{% url 'commander_requests' %}" class="nav-link {% if request.resolver_match.url_name == 'commander_requests' %}active{% endif %}">
+                    <i class="fa-solid fa-stamp"></i>
+                    <span>طلبات الإجازة للمراجعة والتصديق</span>
+                    {% if pending_commander_count > 0 %}
+                    <span class="badge-counter">{{ pending_commander_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'commander_all_leaves' %}" class="nav-link {% if request.resolver_match.url_name == 'commander_all_leaves' %}active{% endif %}">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    <span>عرض إجازات العاملين ومحرك البحث</span>
+                </a>
+                <a href="{% url 'commander_profile' %}" class="nav-link {% if request.resolver_match.url_name == 'commander_profile' %}active{% endif %}">
+                    <i class="fa-solid fa-id-badge"></i>
+                    <span>بيانات القائد والصورة الشخصية</span>
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+        <!-- Toast / Alerts -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {% if message.tags == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fa-solid fa-circle-xmark"></i>
+                {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Military Footer -->
+    <footer class="military-footer">
+        <div class="footer-content">
+            <div>
+                <strong>{{ military_command }}</strong> - {{ unit_branch }}
+            </div>
+            <div class="footer-creds">
+                <i class="fa-solid fa-shield"></i> منظومة المتابعة الرقمية المعتمدة - جمهورية مصر العربية
+            </div>
+            <div>
+                التاريخ الحالي: {{ today_date|date:"Y-m-d" }}
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JavaScript -->
+    <script src="/static/js/main.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

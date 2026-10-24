@@ -1,0 +1,49 @@
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Django local database & logs
+*.log
+local_settings.py
+db.sqlite3-journal
+
+# Media files uploaded by users
+media/avatars/*
+!media/avatars/.gitkeep
+
+# Static collected root (if collectstatic is run)
+staticfiles/
+
+# PyInstaller / Desktop build artifacts
+build/
+dist/
+*.spec
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# Environment variables
+.env
+.env.local

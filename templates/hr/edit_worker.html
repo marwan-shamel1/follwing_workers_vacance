@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}تعديل بيانات العامل المدني - {{ worker.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 1.5rem auto;">
+    <div class="mil-card">
+        <div class="mil-card-header military-theme">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-user-pen"></i>
+                تعديل بيانات العامل المدني: {{ worker.name }}
+            </div>
+            <a href="{% url 'hr_manage_workers' %}" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.4);">
+                <i class="fa-solid fa-arrow-right"></i> رجوع لقائمة العمال
+            </a>
+        </div>
+
+        <div class="mil-card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">الاسم الرباعي للعامل المدني <span class="required">*</span></label>
+                        {{ form.name }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الوظيفة / الحرفة <span class="required">*</span></label>
+                        {{ form.job_title }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الرقم القومي (14 رقم) <span class="required">*</span></label>
+                        {{ form.national_id }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الورشة / القسم / الشعبة <span class="required">*</span></label>
+                        {{ form.department }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">كود العامل / رقم السجل</label>
+                        {{ form.employee_code }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">رقم الهاتف المحمول</label>
+                        {{ form.phone }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">تاريخ التعيين</label>
+                        {{ form.hire_date }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">محل الإقامة / العنوان</label>
+                        {{ form.address }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">ملاحظات إضافية</label>
+                        {{ form.notes }}
+                    </div>
+
+                    <div class="form-group full-width" style="display: flex; align-items: center; gap: 0.5rem;">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="form-label" style="margin-bottom: 0;">العامل على رأس العمل (متاح لتقديم الإجازات)</label>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <a href="{% url 'hr_manage_workers' %}" class="btn btn-outline">إلغاء</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-save"></i> حفظ التعديلات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

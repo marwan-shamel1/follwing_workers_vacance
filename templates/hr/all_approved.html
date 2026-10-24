@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}سجل وأرشيف كل طلبات الإجازة المصدق عليها - شؤون العاملين{% endblock %}
+
+{% block content %}
+<div class="all-approved-container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                <i class="fa-solid fa-box-archive" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                سجل وأرشيف كل طلبات الإجازة المصدق عليها
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                الأرشيف العام لكافة طلبات الإجازات المصدقة عبر المنظومة (تنتقل إليها الطلبات المصدقة بعد انتهاء اليوم)
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'hr_today_endorsed' %}" class="btn btn-primary">
+                <i class="fa-solid fa-calendar-day"></i> المصدقة اليوم
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div class="mil-card" style="margin-bottom: 1.25rem;">
+        <div class="mil-card-body" style="padding: 1rem 1.5rem;">
+            <form method="GET" action="{% url 'hr_all_approved' %}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <div style="flex: 2; min-width: 240px;">
+                    <input type="text" name="q" class="form-control" placeholder="ابحث باسم العامل، الوظيفة، القسم، الرقم القومي..." value="{{ query }}">
+                </div>
+
+                <div style="flex: 1; min-width: 160px;">
+                    <select name="leave_type" class="form-select">
+                        <option value="">-- كل أنواع الإجازات --</option>
+                        <option value="regular" {% if leave_type_filter == 'regular' %}selected{% endif %}>اعتيادي</option>
+                        <option value="casual" {% if leave_type_filter == 'casual' %}selected{% endif %}>عارضة</option>
+                        <option value="permission" {% if leave_type_filter == 'permission' %}selected{% endif %}>إذن</option>
+                        <option value="hospital" {% if leave_type_filter == 'hospital' %}selected{% endif %}>مستشفى</option>
+                        <option value="sick" {% if leave_type_filter == 'sick' %}selected{% endif %}>مرضي</option>
+                        <option value="mission" {% if leave_type_filter == 'mission' %}selected{% endif %}>مأمورية</option>
+                    </select>
+                </div>
+
+                <div style="flex: 1; min-width: 160px;">
+                    <select name="commander_status" class="form-select">
+                        <option value="">-- كل حالات العميد --</option>
+                        <option value="approved" {% if commander_status_filter == 'approved' %}selected{% endif %}>معتمد نهائياً من العميد</option>
+                        <option value="pending" {% if commander_status_filter == 'pending' %}selected{% endif %}>قيد انتظار قرار العميد</option>
+                        <option value="rejected" {% if commander_status_filter == 'rejected' %}selected{% endif %}>مرفوض من العميد</option>
+                    </select>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fa-solid fa-filter"></i> تصفية
+                    </button>
+                    {% if query or leave_type_filter or commander_status_filter %}
+                    <a href="{% url 'hr_all_approved' %}" class="btn btn-outline" title="إعادة تعيين">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="mil-card">
+        <div class="mil-card-header">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-table-list"></i>
+                نتائج الأرشيف ({{ count }})
+            </div>
+            <span class="badge badge-dark">السجل الشامل</span>
+        </div>
+
+        <div class="mil-card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="mil-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>العامل المدني</th>
+                            <th>الوظيفة والقسم</th>
+                            <th>نوع الإجازة</th>
+                            <th>المدة</th>
+                            <th>الفترة</th>
+                            <th>تاريخ تصديق شؤون العاملين</th>
+                            <th>موافقة السيد العميد</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if requests %}
+                            {% for req in requests %}
+                            <tr>
+                                <td>#{{ req.id }}</td>
+                                <td>
+                                    <strong>{{ req.applicant_name }}</strong>
+                                    {% if req.is_manager_request %}
+                                    <span class="badge badge-dark">مدير شؤون العاملين</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ req.applicant_job }}</div>
+                                    <small class="text-muted">{{ req.applicant_department }}</small>
+                                </td>
+                                <td><span class="badge badge-info">{{ req.get_leave_type_display }}</span></td>
+                                <td>
+                                    <strong>{{ req.days_count }}</strong> يوم
+                                    {% if req.permission_hours %}
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ req.permission_hours }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>من {{ req.start_date|date:"Y-m-d" }} إلى {{ req.end_date|date:"Y-m-d" }}</td>
+                                <td>
+                                    <div>{{ req.hr_endorsed_at|date:"Y-m-d" }}</div>
+                                    <small class="text-muted">{{ req.hr_endorsed_at|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    {% if req.commander_status == 'approved' %}
+                                    <span class="badge badge-success">
+                                        <i class="fa-solid fa-circle-check"></i> مصدق من العميد
+                                    </span>
+                                    {% elif req.commander_status == 'rejected' %}
+                                    <span class="badge badge-danger">
+                                        <i class="fa-solid fa-circle-xmark"></i> مرفوض
+                                    </span>
+                                    {% else %}
+                                    <span class="badge badge-warning">
+                                        <i class="fa-solid fa-hourglass"></i> قيد المراجعة
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if req.commander_status == 'approved' %}
+                                    <a href="{% url 'print_leave_order' req.id %}" target="_blank" class="btn btn-sm btn-outline">
+                                        <i class="fa-solid fa-print"></i> أمر إجازة
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted" style="font-size: 0.8rem;">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-inbox" style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--border-color);"></i>
+                                    <div>لا توجد نتائج مطابقة لشروط البحث في الأرشيف.</div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}بوابة العامل المدني - تقديم ومتابعة الإجازات{% endblock %}
+
+{% block content %}
+<div class="worker-portal-container">
+    
+    <!-- Hero / Title Card -->
+    <div class="mil-card" style="border-top: 4px solid var(--mil-gold);">
+        <div class="mil-card-body" style="padding: 1.5rem 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                        <i class="fa-solid fa-file-signature" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                        بوابة العامل المدني - تقديم ومتابعة الإجازات
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                        اختر اسمك من القائمة لعرض رصيدك الفعلي وسجل إجازاتك، ثم املأ نموذج طلب الإجازة للإرسال إلى مدير شؤون العاملين
+                    </p>
+                </div>
+                <div class="leave-year-badge">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>دورة الإجازات: <strong>من 1/7 إلى 30/6</strong> ({{ current_leave_year }})</span>
+                </div>
+            </div>
+
+            <!-- Worker Selection Dropdown -->
+            <div style="margin-top: 1.5rem; background: var(--mil-gold-subtle); border: 2px dashed var(--mil-gold); border-radius: var(--radius-md); padding: 1.25rem;">
+                <label for="workerSelectDropdown" class="form-label" style="font-size: 1rem; font-weight: 800; color: var(--mil-dark);">
+                    <i class="fa-solid fa-user-check" style="color: var(--mil-gold); margin-left: 0.4rem;"></i>
+                    حدد اسم العامل المدني من القائمة:
+                </label>
+                <select id="workerSelectDropdown" class="form-select" style="font-size: 1.05rem; padding: 0.8rem 1rem; border-color: var(--mil-gold); font-weight: 700;">
+                    <option value="">-- اضغط هنا لاختيار اسمك من بين العاملين المدنيين المعتمدين --</option>
+                    {% for w in workers %}
+                    <option value="{{ w.id }}" {% if initial_worker and initial_worker.id == w.id %}selected{% endif %}>
+                        {{ w.name }} — ({{ w.job_title }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <div id="workerDataLoader" style="display: none; margin-top: 0.5rem; color: var(--mil-green); font-size: 0.85rem; font-weight: 700;">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> جاري استرجاع الرصيد وتفاصيل الإجازات...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Section: Revealed after selecting worker -->
+    <div id="workerDetailSection" style="display: {% if initial_worker %}block{% else %}none{% endif %};">
+
+        <!-- Worker Meta Banner -->
+        <div class="mil-card" style="background: linear-gradient(135deg, #13271e 0%, #1a382b 100%); color: #fff;">
+            <div class="mil-card-body" style="padding: 1.25rem 1.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="font-size: 0.82rem; color: var(--mil-gold-light); font-weight: 700;">بيانات العامل المدني المحدد</div>
+                        <h3 id="disp_worker_name" style="font-size: 1.3rem; font-weight: 900; color: #fff; margin-top: 0.2rem;">
+                            {{ initial_worker.name|default:"-" }}
+                        </h3>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                        <div>
+                            <span style="font-size: 0.78rem; color: var(--mil-gold-light);">الوظيفة / الحرفة:</span>
+                            <div id="disp_worker_job" style="font-weight: 800; font-size: 0.95rem;">{{ initial_worker.job_title|default:"-" }}</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.78rem; color: var(--mil-gold-light);">الورشة / القسم:</span>
+                            <div id="disp_worker_dept" style="font-weight: 800; font-size: 0.95rem;">{{ initial_worker.department|default:"-" }}</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.78rem; color: var(--mil-gold-light);">الرقم القومي:</span>
+                            <div id="disp_worker_nid" style="font-weight: 800; font-size: 0.95rem;">{{ initial_worker.national_id|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tally Grid for Worker's Leaves -->
+        <div style="margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-chart-pie" style="color: var(--mil-gold);"></i>
+                حصر أرصدة وإجازات العامل في السنة الحالية ({{ current_leave_year }}):
+            </h3>
+
+            <div class="tally-grid">
+                <!-- Regular Leave (30 days) -->
+                <div class="tally-box regular">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-umbrella-beach"></i>
+                        اعتيادي (متاح 30 يوماً)
+                    </div>
+                    <div class="tally-metric" id="val_reg_taken">0</div>
+                    <div class="tally-sub">يوماً مأخوذاً</div>
+                    <div class="tally-badge-remaining badge-reg">
+                        المتبقي: <strong id="val_reg_rem">30</strong> يوماً
+                    </div>
+                </div>
+
+                <!-- Casual Leave (7 days) -->
+                <div class="tally-box casual">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-bolt"></i>
+                        عارضة (متاح 7 أيام)
+                    </div>
+                    <div class="tally-metric" id="val_cas_taken">0</div>
+                    <div class="tally-sub">يوماً مأخوذاً</div>
+                    <div class="tally-badge-remaining badge-cas">
+                        المتبقي: <strong id="val_cas_rem">7</strong> أيام
+                    </div>
+                </div>
+
+                <!-- Permission (2 permissions) -->
+                <div class="tally-box permission">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-person-walking-arrow-right"></i>
+                        إذن (متاح إذنان فقط)
+                    </div>
+                    <div class="tally-metric" id="val_perm_taken">0</div>
+                    <div class="tally-sub">إذن مأخوذ</div>
+                    <div class="tally-badge-remaining badge-perm">
+                        المتبقي: <strong id="val_perm_rem">2</strong> إذن
+                    </div>
+                </div>
+
+                <!-- Hospital Leave -->
+                <div class="tally-box hospital">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-square-h"></i>
+                        مستشفى
+                    </div>
+                    <div class="tally-metric" id="val_hosp_taken">0</div>
+                    <div class="tally-sub">إجمالي الأيام</div>
+                </div>
+
+                <!-- Sick Leave -->
+                <div class="tally-box sick">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-kit-medical"></i>
+                        مرضي
+                    </div>
+                    <div class="tally-metric" id="val_sick_taken">0</div>
+                    <div class="tally-sub">إجمالي الأيام</div>
+                </div>
+
+                <!-- Mission Leave -->
+                <div class="tally-box mission">
+                    <div class="tally-title">
+                        <i class="fa-solid fa-briefcase"></i>
+                        مأمورية
+                    </div>
+                    <div class="tally-metric" id="val_miss_taken">0</div>
+                    <div class="tally-sub">إجمالي الأيام</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; align-items: start;">
+            
+            <!-- Leave Request Application Form -->
+            <div class="mil-card">
+                <div class="mil-card-header military-theme">
+                    <div class="mil-card-title">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        استمارة تقديم طلب إجازة جديد
+                    </div>
+                </div>
+
+                <div class="mil-card-body">
+                    <form method="POST" action="{% url 'worker_dashboard' %}" id="workerLeaveForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="worker_id" id="hidden_worker_id" value="{{ initial_worker.id }}">
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">اسم العامل (تلقائي)</label>
+                                <input type="text" id="id_applicant_name" class="form-control" readonly value="{{ initial_worker.name }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">الوظيفة (تلقائي)</label>
+                                <input type="text" id="id_applicant_job" class="form-control" readonly value="{{ initial_worker.job_title }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">القسم / الورشة</label>
+                                <input type="text" id="id_applicant_department" class="form-control" readonly value="{{ initial_worker.department }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">رقم الهاتف للتواصل</label>
+                                <input type="text" name="applicant_phone" id="id_applicant_phone" class="form-control" placeholder="01xxxxxxxxx" value="{{ initial_worker.phone }}">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">
+                                    <i class="fa-solid fa-list-check" style="color: var(--mil-gold); margin-left: 0.3rem;"></i>
+                                    نوع الإجازة المطلوبة <span class="required">*</span>
+                                </label>
+                                <select name="leave_type" id="id_leave_type" class="form-select" required>
+                                    <option value="regular">اعتيادي (المتاح 30 يوماً بالسنة تبدأ من 1/7 إلى 30/6)</option>
+                                    <option value="casual">عارضة (المتاح 7 أيام بالسنة)</option>
+                                    <option value="permission">إذن (المتاح إذنان فقط)</option>
+                                    <option value="hospital">مستشفى</option>
+                                    <option value="sick">مرضي</option>
+                                    <option value="mission">مأمورية</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">من تاريخ <span class="required">*</span></label>
+                                <input type="date" name="start_date" id="id_start_date" class="form-control" required value="{{ today_date|date:'Y-m-d' }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">إلى تاريخ <span class="required">*</span></label>
+                                <input type="date" name="end_date" id="id_end_date" class="form-control" required value="{{ today_date|date:'Y-m-d' }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">المدة المطلوبة (بالأيام) <span class="required">*</span></label>
+                                <input type="number" name="days_count" id="id_days_count" class="form-control" min="1" value="1" required>
+                                <small class="text-muted" style="font-size: 0.75rem;">تحسب تلقائياً من التواريخ ويمكن تعديلها</small>
+                            </div>
+
+                            <div class="form-group" id="group_permission_hours" style="display: none;">
+                                <label class="form-label">مدة الإذن بالساعات (إن وجد)</label>
+                                <input type="text" name="permission_hours" id="id_permission_hours" class="form-control" placeholder="مثال: ساعتان (من 10 ص إلى 12 م)">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">القائم بالعمل بدلاً منه</label>
+                                <input type="text" name="substitute_worker" id="id_substitute_worker" class="form-control" placeholder="اسم الزميل البديل">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">العنوان ومحل الإقامة أثناء الإجازة</label>
+                                <input type="text" name="address_during_leave" class="form-control" placeholder="المحافظة - المدينة - العنوان بالتفصيل">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label">سبب الإجازة / ملاحظات</label>
+                                <textarea name="reason" class="form-control" rows="2" placeholder="اكتب سبب الإجازة أو الغرض منها"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.85rem; font-size: 1.05rem; margin-top: 1rem;">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            إرسال طلب الإجازة لمدير شؤون العاملين
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Leaves History Table (Rows) -->
+            <div class="mil-card">
+                <div class="mil-card-header">
+                    <div class="mil-card-title">
+                        <i class="fa-solid fa-list-ol"></i>
+                        سجل وتفاصيل إجازات العامل المدني
+                    </div>
+                    <span class="badge badge-info">تحديث لحظي</span>
+                </div>
+
+                <div class="mil-card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="mil-table">
+                            <thead>
+                                <tr>
+                                    <th>الحالة والتصديق</th>
+                                    <th>نوع الإجازة</th>
+                                    <th>المدة</th>
+                                    <th>من</th>
+                                    <th>إلى</th>
+                                    <th>تاريخ التقديم</th>
+                                    <th>الإجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workerLeavesTableBody">
+                                <!-- Populated dynamically by main.js or server-side if initial -->
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                        <i class="fa-solid fa-spinner fa-spin"></i> جاري استرجاع تفاصيل الإجازات...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="workerLeavesEmptyState" style="display: none; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--border-color);"></i>
+                        <div>لا توجد إجازات سابقة مسجلة لهذا العامل.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}إدارة العاملين المدنيين - مدير شئون العاملين{% endblock %}
+
+{% block content %}
+<div class="workers-management-container">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--mil-green);">
+                <i class="fa-solid fa-users-gear" style="color: var(--mil-gold); margin-left: 0.5rem;"></i>
+                سجل وإدارة العاملين المدنيين بالوحدة
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
+                إضافة بيانات العمال المدنيين الجدد وتعديلها لتظهر فوراً في قائمة التقديم ببوابة العامل
+            </p>
+        </div>
+        <div>
+            <button onclick="openModal('addWorkerModal')" class="btn btn-gold">
+                <i class="fa-solid fa-user-plus"></i> إضافة عامل مدني جديد
+            </button>
+        </div>
+    </div>
+
+    <!-- Workers Table Card -->
+    <div class="mil-card">
+        <div class="mil-card-header">
+            <div class="mil-card-title">
+                <i class="fa-solid fa-address-book"></i>
+                قائمة العاملين المدنيين المسجلين بالمنظومة ({{ total_count }})
+            </div>
+            <span class="badge badge-success">متاحين بالبوابة</span>
+        </div>
+
+        <div class="mil-card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="mil-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم الرباعي</th>
+                            <th>الوظيفة / الحرفة</th>
+                            <th>الورشة / القسم</th>
+                            <th>الرقم القومي</th>
+                            <th>الهاتف</th>
+                            <th>الاعتيادي (المتبقي من 30)</th>
+                            <th>العارضة (المتبقي من 7)</th>
+                            <th>الأذونات</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if workers_with_stats %}
+                            {% for item in workers_with_stats %}
+                            {% with w=item.worker s=item.summary %}
+                            <tr>
+                                <td>
+                                    <strong>{{ w.name }}</strong>
+                                    {% if w.employee_code %}
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ w.employee_code }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ w.job_title }}</td>
+                                <td>{{ w.department }}</td>
+                                <td><code>{{ w.national_id }}</code></td>
+                                <td>{{ w.phone|default:"-" }}</td>
+                                <td>
+                                    <span class="badge badge-reg">
+                                        مأخوذ {{ s.regular.taken }} | متبقي <strong>{{ s.regular.remaining }}</strong>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-cas">
+                                        مأخوذ {{ s.casual.taken }} | متبقي <strong>{{ s.casual.remaining }}</strong>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-perm">
+                                        {{ s.permission.taken }} / 2
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if w.is_active %}
+                                    <span class="badge badge-success">على رأس العمل</span>
+                                    {% else %}
+                                    <span class="badge badge-danger">متوقف</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.35rem;">
+                                        <a href="{% url 'hr_edit_worker' w.id %}" class="btn btn-sm btn-outline" title="تعديل البيانات">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <a href="{% url 'hr_delete_worker' w.id %}" class="btn btn-sm btn-outline" style="color: #ef4444;" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا العامل المدني وسجلاته؟');">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endwith %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="10" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                                    لم يتم تسجيل أي عمال مدنيين حتى الآن. اضغط على "إضافة عامل مدني جديد" بالأعلى للبدء.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal: Add New Civilian Worker -->
+<div id="addWorkerModal" class="mil-modal">
+    <div class="mil-modal-dialog">
+        <div class="mil-modal-header">
+            <h4><i class="fa-solid fa-user-plus" style="margin-left: 0.4rem;"></i> إضافة عامل مدني جديد للمنظومة</h4>
+            <button type="button" class="btn-close-modal" onclick="closeModal('addWorkerModal')">&times;</button>
+        </div>
+        <div class="mil-modal-body">
+            <form method="POST" action="{% url 'hr_manage_workers' %}">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">الاسم الرباعي للعامل المدني <span class="required">*</span></label>
+                        {{ form.name }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الوظيفة / الحرفة <span class="required">*</span></label>
+                        {{ form.job_title }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الرقم القومي (14 رقم) <span class="required">*</span></label>
+                        {{ form.national_id }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الورشة / القسم / الشعبة <span class="required">*</span></label>
+                        {{ form.department }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">كود العامل / رقم السجل</label>
+                        {{ form.employee_code }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">رقم الهاتف المحمول</label>
+                        {{ form.phone }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">تاريخ التعيين</label>
+                        {{ form.hire_date }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">محل الإقامة / العنوان</label>
+                        {{ form.address }}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">ملاحظات إضافية</label>
+                        {{ form.notes }}
+                    </div>
+
+                    <div class="form-group full-width" style="display: flex; align-items: center; gap: 0.5rem;">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="form-label" style="margin-bottom: 0;">العامل على رأس العمل (متاح لتقديم الإجازات)</label>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('addWorkerModal')">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ وإضافة العامل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

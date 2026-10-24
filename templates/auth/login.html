@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}تسجيل الدخول لمنظومة إجازات العاملين المدنيين{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 2rem auto;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; align-items: stretch;">
+        
+        <!-- Login Form Card -->
+        <div class="mil-card" style="box-shadow: var(--shadow-lg); border-top: 4px solid var(--mil-gold);">
+            <div class="mil-card-header military-theme" style="text-align: center; justify-content: center; padding: 1.5rem;">
+                <div>
+                    <div style="font-size: 2.2rem; color: var(--mil-gold); margin-bottom: 0.5rem;">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h2 style="font-size: 1.35rem; font-weight: 800;">تسجيل الدخول للمنظومة</h2>
+                    <p style="font-size: 0.85rem; color: var(--mil-gold-light); margin-top: 0.25rem;">
+                        وحدة متابعة وتصديق إجازات العاملين المدنيين
+                    </p>
+                </div>
+            </div>
+
+            <div class="mil-card-body" style="padding: 2rem;">
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="username">
+                            <i class="fa-solid fa-user-shield text-muted" style="margin-left: 0.35rem;"></i>
+                            اسم المستخدم
+                        </label>
+                        <input type="text" name="username" id="username" class="form-control" required placeholder="أدخل اسم المستخدم" autofocus>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">
+                            <i class="fa-solid fa-key text-muted" style="margin-left: 0.35rem;"></i>
+                            كلمة المرور
+                        </label>
+                        <input type="password" name="password" id="password" class="form-control" required placeholder="أدخل كلمة المرور">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; margin-top: 1rem;">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        دخول المنظومة
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Access / Credentials Info Card -->
+        <div class="mil-card" style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);">
+            <div class="mil-card-header">
+                <div class="mil-card-title">
+                    <i class="fa-solid fa-users-viewfinder"></i>
+                    حسابات الدخول المعتمدة بالمنظومة
+                </div>
+            </div>
+
+            <div class="mil-card-body" style="display: flex; flex-direction: column; gap: 1rem;">
+                <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                    يمكنك تسجيل الدخول المباشر باختيار أي من الحسابات الثلاثة المحددة:
+                </p>
+
+                <!-- Worker Account -->
+                <div onclick="fillCredentials('مدنى', 'مدنى')" style="cursor: pointer; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md); padding: 1rem; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--mil-gold)'; this.style.transform='translateX(-4px)'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-weight: 800; color: var(--mil-green); font-size: 0.95rem;">
+                            <i class="fa-solid fa-id-card-clip" style="color: var(--mil-gold); margin-left: 0.4rem;"></i>
+                            1. بوابة العامل المدني
+                        </span>
+                        <span class="badge badge-info">انقر للملء التلقائي</span>
+                    </div>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                        اسم المستخدم: <strong>مدنى</strong> | كلمة المرور: <strong>مدنى</strong>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                        (تقديم طلب إجازة، اختيار الاسم، حصر الرصيد التلقائي ومتابعة الحالة)
+                    </div>
+                </div>
+
+                <!-- HR Manager Account -->
+                <div onclick="fillCredentials('مدير شئون العاملين', '1234')" style="cursor: pointer; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md); padding: 1rem; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--mil-gold)'; this.style.transform='translateX(-4px)'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-weight: 800; color: var(--mil-green); font-size: 0.95rem;">
+                            <i class="fa-solid fa-user-tie" style="color: var(--mil-gold); margin-left: 0.4rem;"></i>
+                            2. مدير شئون العاملين
+                        </span>
+                        <span class="badge badge-warning">انقر للملء التلقائي</span>
+                    </div>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                        اسم المستخدم: <strong>مدير شئون العاملين</strong> | كلمة المرور: <strong>1234</strong>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                        (إدارة العاملين، مستجدات الطلبات وحصر رصيد العامل، تصديق وإحالة للعميد)
+                    </div>
+                </div>
+
+                <!-- Commander Account -->
+                <div onclick="fillCredentials('مدير المنطقة', '0000')" style="cursor: pointer; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md); padding: 1rem; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--mil-gold)'; this.style.transform='translateX(-4px)'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='none'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <span style="font-weight: 800; color: var(--mil-green); font-size: 0.95rem;">
+                            <i class="fa-solid fa-award" style="color: var(--mil-gold); margin-left: 0.4rem;"></i>
+                            3. سيادة المدير العميد أ ح / عبدالحميد محمد سلامة
+                        </span>
+                        <span class="badge badge-success">انقر للملء التلقائي</span>
+                    </div>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                        اسم المستخدم: <strong>مدير المنطقة</strong> | كلمة المرور: <strong>0000</strong>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                        (محرك بحث إجازات العاملين، حصر الإجازات العام، التصديق النهائي أو الرفض)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function fillCredentials(user, pass) {
+    document.getElementById('username').value = user;
+    document.getElementById('password').value = pass;
+    document.getElementById('username').focus();
+}
+</script>
+{% endblock %}
